@@ -10,6 +10,8 @@ services:
     depends_on:
       etcd:
         condition: service_healthy
+      redis:
+        condition: service_healthy
   http-server:
     build: http-server
     ports:
@@ -28,4 +30,17 @@ services:
     healthcheck:
       test: ["CMD", "etcdctl"]
       interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: bitnami/redis:6.2.12
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 5s
+      timeout: 5s
       retries: 5
